@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <TheHeader />
+    <TheHeader/>
     <main id="main">
       <transition mode="out-in">
-        <router-view />
+        <router-view/>
       </transition>
     </main>
-    <TheFooter />
+    <TheFooter/>
   </div>
 </template>
 
@@ -17,8 +17,8 @@ import TheFooter from "@/components/TheFooter.vue";
 export default {
   components: {
     TheHeader,
-    TheFooter,
-  },
+    TheFooter
+  }
 };
 </script>
 

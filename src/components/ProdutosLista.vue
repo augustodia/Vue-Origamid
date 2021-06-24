@@ -1,37 +1,21 @@
 <template>
   <section class="produtos-container">
     <transition mode="out-in">
-      <div
-        v-if="produtos && produtos.length > 0"
-        class="produtos"
-        key="produtos"
-      >
+      <div v-if="produtos && produtos.length" class="produtos" key="produtos">
         <div class="produto" v-for="(produto, index) in produtos" :key="index">
-          <router-link :to="{ name: 'produto', params: { id: produto.id } }">
-            <img
-              v-if="produto.fotos"
-              :src="produto.fotos[0].src"
-              :alt="produto.fotos[0].titulo"
-            />
-            <p class="preco">{{ produto.preco | numeroPreco}}</p>
-            <h2 class="titulo">{{ produto.nome }}</h2>
-            <p>{{ produto.descricao }}</p>
+          <router-link :to="{name: 'produto', params: {id: produto.id}}">
+            <img v-if="produto.fotos" :src="produto.fotos[0].src" :alt="produto.fotos[0].titulo">
+            <p class="preco">{{produto.preco | numeroPreco}}</p>
+            <h2 class="titulo">{{produto.nome}}</h2>
+            <p>{{produto.descricao}}</p>
           </router-link>
         </div>
-
-        <ProdutosPaginar
-          :produtosTotal="produtosTotal"
-          :produtosPorPagina="produtosPorPagina"
-        />
+        <ProdutosPaginar :produtosTotal="produtosTotal" :produtosPorPagina="produtosPorPagina"/>
       </div>
-      <div v-else-if="produtos && produtos.length === 0" key="sem-resultado">
-        <p class="sem-resultados">
-          Busca sem resultados. Tente buscar outro termo.
-        </p>
+      <div v-else-if="produtos && produtos.length === 0" key="sem-resultados">
+        <p class="sem-resultados">Busca sem resultados. Tente buscar outro termo.</p>
       </div>
-      <div v-else key="carregando">
-        <pagina-carregando></pagina-carregando>
-      </div>
+      <PaginaCarregando key="carregando" v-else/>
     </transition>
   </section>
 </template>
@@ -44,42 +28,40 @@ import { serialize } from "@/helpers.js";
 export default {
   name: "ProdutosLista",
   components: {
-    ProdutosPaginar,
+    ProdutosPaginar
   },
   data() {
     return {
       produtos: null,
       produtosPorPagina: 9,
-      produtosTotal: 0,
+      produtosTotal: 0
     };
   },
   computed: {
     url() {
       const query = serialize(this.$route.query);
-      console.log(query);
       return `/produto?_limit=${this.produtosPorPagina}${query}`;
-    },
+    }
   },
   methods: {
     getProdutos() {
       this.produtos = null;
-      console.log(this.url);
       window.setTimeout(() => {
-        api.get(this.url).then((response) => {
+        api.get(this.url).then(response => {
           this.produtosTotal = Number(response.headers["x-total-count"]);
           this.produtos = response.data;
         });
-      }, 1000);
-    },
+      }, 1500);
+    }
   },
   watch: {
     url() {
       this.getProdutos();
-    },
+    }
   },
   created() {
     this.getProdutos();
-  },
+  }
 };
 </script>
 

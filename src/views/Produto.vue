@@ -1,45 +1,53 @@
 <template>
   <section>
-    <transition mode="out-in">
-      <div v-if="produto" class="produto">
-        <ul class="fotos" v-if="produto.fotos">
-          <li v-for="(foto, index) in produto.fotos" :key="index">
-            <img :src="foto.src" :alt="foto.titulo" />
-          </li>
-        </ul>
-        <div class="info">
-          <h2>{{ produto.nome }}</h2>
-          <p class="preco">{{ produto.preco | numeroPreco }}</p>
-          <p class="descricao">{{ produto.descricao }}</p>
-          <button class="btn" v-if="produto.vendido === 'false'">
+    <div v-if="produto" class="produto">
+      <ul class="fotos" v-if="produto.fotos">
+        <li v-for="(foto, index) in produto.fotos" :key="index">
+          <img :src="foto.src" :alt="foto.titulo" />
+        </li>
+      </ul>
+      <div class="info">
+        <h1>{{ produto.nome }}</h1>
+        <p class="preco">{{ produto.preco | numeroPreco }}</p>
+        <p class="descricao">{{ produto.descricao }}</p>
+        <transition v-if="produto.vendido === 'false'" mode="out-in">
+          <button
+            v-if="!finalizar"
+            class="btn"
+            @click.prevent="finalizar = true"
+          >
             Comprar
           </button>
-          <button disabled class="btn" v-else>Produto Vendido</button>
-        </div>
+          <finalizar-compra v-else :produto="produto"></finalizar-compra>
+        </transition>
+        <button v-else class="btn" disabled>Produto Vendido</button>
       </div>
-      <pagina-carregando v-else></pagina-carregando>
-    </transition>
+    </div>
+    <PaginaCarregando v-else />
   </section>
 </template>
 
 <script>
 import { api } from "@/services.js";
+import FinalizarCompra from "@/components/FinalizarCompra.vue";
 
 export default {
-  name: "Produto",
+  name: "Produtos",
   props: ["id"],
+  components: {
+    FinalizarCompra,
+  },
   data() {
     return {
       produto: null,
+      finalizar: false,
     };
   },
   methods: {
     getProduto() {
-      setTimeout(() => {
-        api.get(`/produto/${this.id}`).then((r) => {
-          this.produto = r.data;
-        });
-      }, 2000);
+      api.get(`/produto/${this.id}`).then((response) => {
+        this.produto = response.data;
+      });
     },
   },
   created() {
@@ -51,7 +59,7 @@ export default {
 <style scoped>
 .produto {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 30px;
   max-width: 900px;
   padding: 60px 20px;
